@@ -6,7 +6,7 @@ Unity project implemented with Multimodal Llama 3.2, hands interaction, and Wit 
 
 The robot included in the sample scene has very basic behaviors.
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/100cf07f-ca4e-4f6d-b7c5-422985bfc3ff/c9331771-fedb-47e6-90c6-129f9904fa8e/image.png)
+![robot.png](https://github.com/bDiazTaima/Natural-AI-Mixed-Reality/blob/main/Assets/GitImages/robot.png)
 
 ### Robot.cs
 
@@ -78,11 +78,11 @@ For the transcription part, [wit.ai](https://wit.ai/) is used. I include this [r
 
 The EventHandler object is found in WitDictation.
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/100cf07f-ca4e-4f6d-b7c5-422985bfc3ff/418ddb35-f136-450b-8c20-a57c43a72b46/image.png)
+![transcription.png](https://github.com/bDiazTaima/Natural-AI-Mixed-Reality/blob/main/Assets/GitImages/transcription.png)
 
 It has a component called "MultiRequestTranscription". In the event list, it has a dynamic text that automatically writes the transcription received from the voice on this object.
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/100cf07f-ca4e-4f6d-b7c5-422985bfc3ff/0a0bb658-289a-4975-82d4-efda99a658c3/image.png)
+![multirequest.png](https://github.com/bDiazTaima/Natural-AI-Mixed-Reality/blob/main/Assets/GitImages/multirequest.png)
 
 ### WitActivation.cs
 
@@ -286,15 +286,15 @@ public class PostRequest : MonoBehaviour
 
 The capture event is triggered by recognizing if the right and left hand fingers are in a specific position.
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/100cf07f-ca4e-4f6d-b7c5-422985bfc3ff/c1d8bd98-a38a-43b5-9062-09f6f35eddb2/image.png)
+![capture.png](https://github.com/bDiazTaima/Natural-AI-Mixed-Reality/blob/main/Assets/GitImages/capture.png)
 
 When these positions are met
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/100cf07f-ca4e-4f6d-b7c5-422985bfc3ff/aa12151c-f6d4-4a83-b638-d38be77cad99/image.png)
+![capture2.png](https://github.com/bDiazTaima/Natural-AI-Mixed-Reality/blob/main/Assets/GitImages/capture2.png)
 
  the `TriggerSnapshot` event is called through the (SelectorUnityEventWrapper) script.
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/100cf07f-ca4e-4f6d-b7c5-422985bfc3ff/451e6504-2b15-4fb3-a6e3-8db0a1e71458/image.png)
+![capture3.png](https://github.com/bDiazTaima/Natural-AI-Mixed-Reality/blob/main/Assets/GitImages/capture3.png)
 
 The image obtained from the screenshot is sent to the (PostProcess.cs) script to be evaluated in the prompt.
 
@@ -567,7 +567,7 @@ The capture logic was sourced from the repository [trev3d / QuestDisplayAccessDe
 
 This repository includes the implementation of commands via [Wit.ai](http://wit.ai/), which can be tested using the hidden object (Shapes) found in the Hierarchy. If you give a command such as "make capsule blue" [you can substitute any shape with those available in the object and also any color], you will see that the geometry changes to the chosen color.
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/100cf07f-ca4e-4f6d-b7c5-422985bfc3ff/cb6f9a44-4c7d-4e11-9c67-bd8b51c32554/image.png)
+![commands.png](https://github.com/bDiazTaima/Natural-AI-Mixed-Reality/blob/main/Assets/GitImages/commands.png)
 
 ## RoadMap
 
