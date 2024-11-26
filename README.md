@@ -1,5 +1,7 @@
 ### Natural-AI-Mixed-Reality
 
+# Unity
+
 Unity project implemented with Multimodal Llama 3.2, hands interaction, and Wit AI to get transcriptions.
 
 ## Robot
@@ -581,3 +583,193 @@ This repository includes the implementation of commands via [Wit.ai](http://wit.
 - https://github.com/trev3d/QuestDisplayAccessDemo
 - https://wit.ai/docs/tutorials#wit-unity-shapes-tutorial
 - https://wit.ai/
+
+# Training Model Backend
+
+# Model Training Backend Documentation
+
+This backend system enables training of a **LLaMA 3.2 11B Vision-Instruct Model** on a dataset derived from PDF files and art-related images. The process is managed via a **Node.js server** running on an **Ubuntu virtual environment** within **Windows 11**. Below are the key components and steps:
+
+---
+
+## **System Components**
+
+### 1. **Node.js Server** (`mai-base-server_v2.js`)
+   - Handles:
+     - PDF upload and storage.
+     - Dataset creation and optimization.
+     - Training model execution.
+   - Key API Endpoints:
+     - `/receivepdfandtrain` - Upload and preprocess PDFs.
+     - `/convertData` - Optimize dataset using Python.
+     - `/trainModel` - Train the model.
+
+### 2. **Python Scripts**
+   - `convertData.py`:
+     - Converts preprocessed PDF content into a structured dataset in JSON format.
+   - `trainModel.py`:
+     - Fine-tunes the LLaMA model using the optimized dataset and art-related images.
+
+### 3. **Frontend Interfaces**
+   - `upload_pdf_v2.html`: Upload PDFs and specify the model name.
+   - `train_models_v2.html`: Optimize dataset and initiate model training.
+
+---
+
+## **Backend Workflow**
+
+### 1. **Upload PDFs** (`upload_pdf_v2.html` + `/receivepdfandtrain`)
+   - User uploads PDFs and specifies a model name.
+   - PDFs are renamed sequentially and stored in `/pdf_usr_uploads/<model_name>/`.
+   - A preprocessing command generates preliminary data from PDFs.
+
+   ```javascript
+   app.post('/receivepdfandtrain', upload.array('pdfs'), (req, res) => {
+       const command = `marker "${uploadDir}" "${dataDir}" --workers 4 --max 10`;
+       exec(command, ...);  // Preprocess PDFs
+   });
+   ```
+
+### 2. **Optimize Dataset** (`train_models_v2.html` + `/convertData`)
+   - Python script processes PDFs and generates a JSON dataset with user prompts and assistant responses.
+
+   ```python
+   # convertData.py
+   dataset.append({"message": tmp2})
+   with open(output_file, "w", encoding="utf-8") as f:
+       json.dump(dataset, f, indent=4, ensure_ascii=False)
+   ```
+
+### 3. **Fine-Tune Model** (`train_models_v2.html` + `/trainModel`)
+   - Combines the dataset with art images for model fine-tuning.
+   - Uses the `transformers` library with configuration optimizations like LoRA and bfloat16 precision.
+
+   ```python
+   # trainModel.py
+   trainer.train()  # Fine-tuning step with processed dataset and images
+   ```
+
+### 4. **Frontend Communication**
+   - Interfaces like `upload_pdf_v2.html` and `train_models_v2.html` use local storage and fetch API for seamless interaction with backend endpoints.
+
+---
+
+## **File Structure**
+
+```plaintext
+project/
+├── mai-base-server_v2.js      # Node.js backend
+├── convertData.py             # Dataset optimization
+├── trainModel.py              # Model training
+├── pdf_usr_uploads/           # Uploaded PDFs and datasets
+│   ├── <model_name>/
+│   │   ├── pdf_1.pdf
+│   │   ├── pdf_2.pdf
+│   │   ├── <model_name>_dataset.json
+├── training_set/              # Art images
+│   ├── painting/
+│   ├── sculpture/
+│   ├── engraving/
+├── upload_pdf_v2.html         # PDF upload interface
+├── train_models_v2.html       # Training interface
+```
+
+---
+
+## **Deployment Environment**
+
+- **Host OS**: Windows 11
+- **Virtualization**: Ubuntu running via WSL
+- **Dependencies**:
+  - Node.js (Express, Multer)
+  - Python 3.x (transformers, datasets, torch)
+
+### Run the server:
+
+```bash
+# Install Node.js dependencies
+npm install
+
+# Start Node.js server
+node mai-base-server_v2.js
+```
+
+### Run Python scripts for dataset optimization and training:
+
+```bash
+# Optimize dataset
+python3 convertData.py <model_name>
+
+# Train model
+python3 trainModel.py <model_name>
+``` 
+
+This system provides a streamlined pipeline for creating and training a state-of-the-art multimodal AI model.
+
+# Merging and deploying model
+
+- Merging and Running the Trained Model on Runpod
+In the development stage, we merge the base LLaMA 3.2 11B Vision-Instruct model with our trained LoRA adapter for deployment. The merged model is hosted on Runpod and communicates with a website using FastAPI.
+
+Merging Base Model and LoRA Adapter
+Below is an example of how a LoRA adapter is loaded into the base model for inference:
+
+import torch
+from transformers import AutoModelForCausalLM, AutoProcessor
+from peft import PeftModel, PeftConfig
+
+# Define base model and adapter paths
+base_model_id = "meta-llama/Llama-3.2-11B-Vision-Instruct"
+lora_adapter_path = "loraMuseAI_v1"
+
+# Set device
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f"Selected device: {device}")
+
+# Load base model
+print("Loading base model...")
+model = AutoModelForCausalLM.from_pretrained(
+    base_model_id,
+    torch_dtype=torch.bfloat16,
+    device_map="auto"
+)
+
+# Load LoRA adapter into the model
+print("Loading LoRA adapter...")
+config = PeftConfig.from_pretrained(lora_adapter_path)
+config.peft_type = "LORA"  # Ensure the correct type is set
+
+model = PeftModel.from_pretrained(model, lora_adapter_path, config=config)
+model.eval()
+
+print(f"Model is running on: {next(model.parameters()).device}")
+
+# Load processor
+processor = AutoProcessor.from_pretrained(base_model_id)
+Deployment Notes
+Hosting Environment:
+
+The model is deployed on Runpod, which provides an efficient cloud environment optimized for AI workloads.
+Runpod is running on 1 A100 PCIe GPU (24 vCPU 125 GB RAM)
+API Integration:
+
+A FastAPI backend is used to expose endpoints for communication with the website.
+This ensures seamless integration of the model's capabilities into a web application.
+Usage:
+
+The merged model is used for inference, leveraging the fine-tuned LoRA adapter to generate responses or process multimodal inputs efficiently.
+Workflow Summary
+Merging:
+
+The base model (meta-llama/Llama-3.2-11B-Vision-Instruct) is augmented with the LoRA adapter (loraMuseAI_v1).
+The PeftModel class integrates the adapter with the base model to retain fine-tuning benefits.
+Running on Runpod:
+
+After merging, the model runs on 1 GPU in the Runpod environment for optimized performance.
+API Integration:
+
+FastAPI handles communication between the model and the web application for real-time interaction.
+This setup allows for a robust development stage with efficient model deployment and interaction.
+
+Test it yourself:
+MuseAI Live Demo at https://www.sulest.co/museai -will run from Nov. 25 to Nov. 30, 2024.
